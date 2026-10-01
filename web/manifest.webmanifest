@@ -1,0 +1,11 @@
+{
+  "id": "/",
+  "name": "MahinBook — your reading corner",
+  "short_name": "MahinBook",
+  "description": "Discover books, keep your shelf, and share your reading life.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#f7f5f0",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
