@@ -1,0 +1,11 @@
+node_modules
+.next
+.vercel
+*.tsbuildinfo
+out
+coverage
+.env*
+!.env.example
+npm-debug.log*
+/.agents/
+/.aider-desk/
