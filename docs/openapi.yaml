@@ -1,0 +1,244 @@
+openapi: 3.1.0
+info:
+  title: MahinBook API
+  version: 1.0.0
+  description: Book discovery and social reading API.
+servers:
+  - url: /api
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      summary: Check application and database readiness
+      responses:
+        '200': { description: Ready }
+  /auth/signup:
+    post:
+      security: []
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 48 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        '201': { description: Account created; returns a bearer token and user }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { description: Email is already registered }
+  /auth/login:
+    post:
+      security: []
+      summary: Sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200': { description: Signed in; returns a bearer token and user }
+        '401': { description: Credentials are incorrect }
+  /me:
+    get:
+      summary: Get the signed-in reader and shelf statistics
+      responses:
+        '200': { description: Reader profile }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      summary: Update the signed-in reader profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 48 }
+                bio: { type: string, maxLength: 240 }
+      responses:
+        '200': { description: Updated reader profile }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /books:
+    get:
+      security: []
+      summary: Search and filter the book catalog
+      parameters:
+        - { in: query, name: q, schema: { type: string }, description: Full-text title, author, and description search }
+        - { in: query, name: genre, schema: { type: string } }
+      responses:
+        '200': { description: Matching books and rating summaries }
+  /books/{bookId}:
+    get:
+      security: []
+      summary: Get a book and its reviews
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200': { description: Book detail and reviews }
+        '404': { description: Book not found }
+  /books/{bookId}/reviews:
+    post:
+      summary: Review a book
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating, comment]
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: string, minLength: 2, maxLength: 1400 }
+      responses:
+        '201': { description: Review saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /lists:
+    get:
+      summary: Get the signed-in reader's shelf
+      responses:
+        '200': { description: Shelf entries with book details }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /lists/{bookId}:
+    put:
+      summary: Add a book or change its reading status
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [To Read, Reading, Completed] }
+      responses:
+        '200': { description: Shelf entry saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    delete:
+      summary: Remove a book from the signed-in reader's shelf
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200': { description: Shelf entry removed }
+  /people:
+    get:
+      security: []
+      summary: Browse readers and their public reading stats
+      responses:
+        '200': { description: Reader profiles; email addresses are not returned }
+  /people/{userId}/follow:
+    put:
+      summary: Follow a reader
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: Reader followed }
+    delete:
+      summary: Unfollow a reader
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: Reader unfollowed }
+  /feed:
+    get:
+      summary: Get recent activity from followed readers
+      responses:
+        '200': { description: Activity feed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /library:
+    get:
+      summary: List the signed-in reader's private books
+      responses:
+        '200': { description: Private PDFs and saved file links }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Upload a PDF or save an HTTPS book file link
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, author]
+              properties:
+                title: { type: string, maxLength: 140 }
+                author: { type: string, maxLength: 100 }
+                description: { type: string, maxLength: 2000 }
+                genre: { type: string, maxLength: 40 }
+                file: { type: string, format: binary, description: PDF up to 25 MB }
+                url: { type: string, format: uri, description: Direct HTTPS book file link; use file or url }
+      responses:
+        '201': { description: Private library book created }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '413': { description: Uploaded PDF exceeds 25 MB }
+  /library/{bookId}:
+    get:
+      summary: Get a private library book owned by the signed-in reader
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200': { description: Private book metadata }
+        '404': { description: Book not found or not owned by the reader }
+    delete:
+      summary: Remove a private book and its uploaded PDF
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200': { description: Book removed }
+  /library/{bookId}/file:
+    get:
+      summary: Stream an owned PDF inline for reading
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200': { description: PDF file stream, content type application/pdf }
+        '404': { description: File not found or not owned by the reader }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    BookId:
+      in: path
+      name: bookId
+      required: true
+      schema: { type: string, pattern: '^[a-fA-F0-9]{24}$' }
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema: { type: string, pattern: '^[a-fA-F0-9]{24}$' }
+  responses:
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: { error: { type: string } }
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: { error: { type: string } }

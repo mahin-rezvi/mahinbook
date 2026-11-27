@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f6f1"><meta name="description" content="Find your next favorite. Read, collect, and share books with MahinBook.">
+  <link rel="manifest" href="/manifest.webmanifest"><link rel="preconnect" href="https://covers.openlibrary.org">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css"><title>MahinBook — your reading life, together</title>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#discover"><span class="brand-mark">m</span><span>mahin<span class="brand-light">book</span></span></a>
+      <div class="side-label">YOUR SPACE</div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-page="discover"><span class="nav-icon">⌕</span><span>Discover</span></button>
+        <button class="nav-item" data-page="community"><span class="nav-icon">◉</span><span>Community</span><span class="nav-badge" id="people-count"></span></button>
+        <button class="nav-item" data-page="library"><span class="nav-icon">▣</span><span>My library</span></button>
+        <button class="nav-item" data-page="my-list"><span class="nav-icon">▤</span><span>My bookshelf</span></button>
+        <button class="nav-item" data-page="profile"><span class="nav-icon">◎</span><span>My profile</span></button>
+      </nav>
+      <div class="side-bottom"><div class="side-note"><div class="note-icon">✳</div><p>“A reader lives a thousand lives before he dies.”</p><span>— George R. R. Martin</span></div><div class="account-mini" id="account-mini"></div></div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><div class="mobile-brand"><span class="brand-mark">m</span> mahinbook</div><div class="crumb" id="breadcrumb">Your reading life, together</div><div class="top-actions"><button class="icon-button" id="search-shortcut" aria-label="Search books">⌕</button><button class="avatar-button" id="avatar-shortcut" aria-label="Profile">G</button><button class="signin-top" id="top-auth">Log in</button></div></header>
+      <section class="content" id="page-content"></section>
+      <footer class="footer"><span>Made for the love of reading <b>♥</b></span><span>MahinBook · 2026</span></footer>
+    </main>
+  </div>
+  <dialog id="auth-dialog" class="dialog auth-dialog"><button class="dialog-close" data-close>×</button><div class="auth-logo"><span class="brand-mark">m</span></div><p class="eyebrow">A little more bookish</p><h2 id="auth-title">Welcome back.</h2><p class="muted" id="auth-copy">Your next favorite is waiting.</p><form id="auth-form"><div class="field" id="name-field" hidden><label for="auth-name">Your name</label><input id="auth-name" name="name" autocomplete="name" placeholder="What should we call you?"></div><div class="field"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label for="auth-password">Password</label><input id="auth-password" name="password" type="password" minlength="8" autocomplete="current-password" placeholder="At least 8 characters" required></div><p class="form-error" id="auth-error"></p><button class="button button-dark full" id="auth-submit">Log in <span>→</span></button></form><p class="auth-switch"><span id="auth-switch-text">New to MahinBook?</span> <button id="auth-switch">Create an account</button></p></dialog>
+  <dialog id="book-dialog" class="dialog book-dialog"><button class="dialog-close" data-close>×</button><div id="book-detail"></div></dialog>
+  <dialog id="upload-dialog" class="dialog upload-dialog"><button class="dialog-close" data-close>×</button><p class="eyebrow">MAKE IT YOURS</p><h2 class="modal-title">Add a book</h2><p class="muted">Upload a PDF (up to 25 MB) or add a direct HTTPS file link.</p><form id="upload-form" enctype="multipart/form-data"><div class="field"><label for="upload-title">Book title</label><input id="upload-title" name="title" maxlength="140" required placeholder="What’s it called?"></div><div class="field"><label for="upload-author">Author</label><input id="upload-author" name="author" maxlength="100" required placeholder="Who wrote it?"></div><div class="field"><label for="upload-description">A little about the book</label><textarea id="upload-description" name="description" maxlength="2000" placeholder="Optional"></textarea></div><div class="field"><label for="upload-genre">Genre</label><select id="upload-genre" name="genre"><option>Fiction</option><option>Fantasy</option><option>Science Fiction</option><option>Classic</option><option>Memoir</option><option>History</option><option>Self-help</option><option>Art</option><option selected>Other</option></select></div><div class="source-choice"><button type="button" class="source-tab active" data-source="file">Upload a PDF</button><button type="button" class="source-tab" data-source="link">Use a file link</button></div><div class="field" id="upload-file-field"><label for="upload-file">PDF file</label><input id="upload-file" type="file" name="file" accept="application/pdf,.pdf"><small>PDF only · 25 MB maximum</small></div><div class="field" id="upload-link-field" hidden><label for="upload-link">Direct book file URL</label><input id="upload-link" name="url" type="url" inputmode="url" placeholder="https://…/book.pdf"><small>Use a direct HTTPS file link. Some hosts may prevent in-app preview.</small></div><p class="form-error" id="upload-error"></p><button class="button button-dark full" id="upload-submit">Add to my library <span>→</span></button></form></dialog>
+  <dialog id="reader-dialog" class="dialog reader-dialog"><button class="dialog-close" data-close>×</button><div class="reader-head"><div><p class="eyebrow">YOUR PRIVATE READING SPACE</p><h2 id="reader-title">Read a book</h2><p id="reader-author"></p></div><a id="reader-external" class="button button-light small" target="_blank" rel="noopener noreferrer" hidden>Open source ↗</a></div><div id="reader-frame-wrap"></div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
